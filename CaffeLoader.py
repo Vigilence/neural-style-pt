@@ -166,6 +166,7 @@ def buildSequential(channel_list, pooling):
         else:
             conv2d = nn.Conv2d(in_channels, c, kernel_size=3, padding=1)
             layers += [conv2d, nn.ReLU(inplace=True)]
+            
             in_channels = c
     return nn.Sequential(*layers)
 
@@ -174,6 +175,7 @@ channel_list = {
 'VGG-16p': [24, 22, 'P', 41, 51, 'P', 108, 89, 111, 'P', 184, 276, 228, 'P', 512, 512, 512, 'P'],
 'VGG-16': [64, 64, 'P', 128, 128, 'P', 256, 256, 256, 'P', 512, 512, 512, 'P', 512, 512, 512, 'P'],
 'VGG-19': [64, 64, 'P', 128, 128, 'P', 256, 256, 256, 256, 'P', 512, 512, 512, 512, 'P', 512, 512, 512, 512, 'P'],
+'ResNeXt': [64, 64, 'P', 128, 128, 'P', 256, 256, 256, 256, 'P', 512, 512, 512, 512, 'P', 512, 512, 512, 512, 'P'],
 }
 
 nin_dict = {
@@ -192,10 +194,15 @@ vgg19_dict = {
 'R': ['relu1_1', 'relu1_2', 'relu2_1', 'relu2_2', 'relu3_1', 'relu3_2', 'relu3_3', 'relu3_4', 'relu4_1', 'relu4_2', 'relu4_3', 'relu4_4', 'relu5_1', 'relu5_2', 'relu5_3', 'relu5_4'],
 'P': ['pool1', 'pool2', 'pool3', 'pool4', 'pool5'],
 }
+ResNeXt_dict = {
+'C': ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2', 'conv3_1', 'conv3_2', 'conv3_3', 'conv3_4', 'conv4_1', 'conv4_2', 'conv4_3', 'conv4_4', 'conv5_1', 'conv5_2', 'conv5_3', 'conv5_4'],
+'R': ['relu1_1', 'relu1_2', 'relu2_1', 'relu2_2', 'relu3_1', 'relu3_2', 'relu3_3', 'relu3_4', 'relu4_1', 'relu4_2', 'relu4_3', 'relu4_4', 'relu5_1', 'relu5_2', 'relu5_3', 'relu5_4'],
+'P': ['pool1', 'pool2', 'pool3', 'pool4', 'pool5'],
+}
 
 
 def modelSelector(model_file, pooling):
-    vgg_list = ["fcn32s", "pruning", "sod", "vgg"]
+    vgg_list = ["fcn32s", "pruning", "sod", "vgg", "ResNeXt"]
     if any(name in model_file for name in vgg_list):
         if "pruning" in model_file:
             print("VGG-16 Architecture Detected")
@@ -215,6 +222,9 @@ def modelSelector(model_file, pooling):
         elif "16" in model_file:
             print("VGG-16 Architecture Detected")
             cnn, layerList = VGG(buildSequential(channel_list['VGG-16'], pooling)), vgg16_dict
+        elif "ResNeXt" in model_file:
+            print("ResNeXt Architecture Detected")
+            cnn, layerList = VGG(buildSequential(channel_list['ResNeXt'], pooling)), ResNeXt_dict
         else:
             raise ValueError("VGG architecture not recognized.")
     elif "nin" in model_file:
